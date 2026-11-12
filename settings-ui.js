@@ -1,5 +1,4 @@
 import { randomBytes } from 'node:crypto'
-import { spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { resolve } from 'node:path'
@@ -127,11 +126,7 @@ export async function startSettingsUi({ home, port = 0, fetchImpl = fetch } = {}
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   startSettingsUi().then(({ url, file }) => {
-    process.stdout.write('陪伴插件设置页：' + url + '\n设置文件：' + file + '\n关闭此终端即关闭设置页，DSH 插件仍可继续运行。\n')
-    const opener = process.platform === 'win32' ? 'explorer.exe' : process.platform === 'darwin' ? 'open' : 'xdg-open'
-    const child = spawn(opener, [url], { detached: true, stdio: 'ignore', windowsHide: true })
-    child.on('error', () => {})
-    child.unref()
+    process.stdout.write('陪伴插件设置页：' + url + '\n设置文件：' + file + '\n把这个网址复制到浏览器打开；关闭此终端即关闭设置页，DSH 插件仍可继续运行。\n')
   }).catch((error) => {
     process.stderr.write('设置页启动失败：' + error.message + '\n')
     process.exitCode = 1
