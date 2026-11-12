@@ -1,6 +1,6 @@
 {
   "name": "dsh-companion-mood",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "A local DeepSeek Harness companion with persistent mood and proactive conversation",
   "license": "MIT",

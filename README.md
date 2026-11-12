@@ -6,11 +6,11 @@
 
 要求 DSH 桌面版或 Web 版（0.2.2-rc.1 及以上），以及 Node.js 22.16 或更新版本。先打开一次 DSH，让对应 profile 初始化，再退出 DSH。
 
-从 [Releases](https://github.com/jiaoaiya/dsh-companion-mood/releases) 下载 `dsh-companion-mood-1.0.0.tgz`，或把本仓库克隆/解压到任意位置。
+从 [Releases](https://github.com/jiaoaiya/dsh-companion-mood/releases) 下载最新的 `dsh-companion-mood-<版本>.tgz`，或把本仓库克隆/解压到任意位置。
 
 在 DSH 的“设置 → 插件 → 安装”中填入那个 tgz 的绝对路径，或填入本源码文件夹的绝对路径。也可使用 DSH 命令行：
 
-    dsh plugin --profile desktop add "C:/path/to/dsh-companion-mood-1.0.0.tgz"
+    dsh plugin --profile desktop add "C:/path/to/dsh-companion-mood-1.0.1.tgz"
 
 把示例路径换成你自己电脑上的安装包路径；Web 版将 desktop 改成 web。安装后重启 DSH，在一个主会话里发一条消息；插件会记录这个会话为主动联系目标。如果 DSH 命令不在 PATH 中，可直接在插件安装界面填绝对路径。插件目录要保留在原位置，不要移动或删除安装目录。从源码文件夹安装时，改动代码后需要重新安装一次。
 
@@ -24,7 +24,7 @@ dsh-meme 提供 send_meme 工具、图库和只读检索服务。本插件优先
 
 ## DSH 内置可视化设置页
 
-1.0.0 在 DSH 的“设置 → 陪伴”提供可视化页面，也在“插件 → 本插件详情”显示同一页面。可直接调整总开关、停聊后评估等待、暂不联系后再次评估、检查频率、最低沉默时间、冷却、每日上限、静默时段、时区、表情包偏好、自动收藏开关和固定会话 ID。“发现表情包”标签可浏览并安装 dsh-meme 图库；“导入目录”标签可选择本机图片文件夹，建成自己的图库。更新插件后请完全退出并重新打开 DSH，使 Web 客户端加载新的 client bundle。
+从 1.0.0 起，DSH 的“设置 → 陪伴”提供可视化页面，也在“插件 → 本插件详情”显示同一页面。可直接调整总开关、停聊后评估等待、暂不联系后再次评估、检查频率、最低沉默时间、冷却、每日上限、静默时段、时区、表情包偏好、自动收藏开关和固定会话 ID。“发现表情包”标签可浏览并安装 dsh-meme 图库；“导入目录”标签可选择本机图片文件夹，建成自己的图库。更新插件后请完全退出并重新打开 DSH，使 Web 客户端加载新的 client bundle。
 
 ## 独立设置页
 
