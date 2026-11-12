@@ -1,0 +1,49 @@
+{
+  "name": "dsh-companion-mood",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A local DeepSeek Harness companion with persistent mood and proactive conversation",
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "companion",
+    "mood",
+    "proactive"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiaoaiya/dsh-companion-mood.git"
+  },
+  "homepage": "https://github.com/jiaoaiya/dsh-companion-mood#readme",
+  "bugs": {
+    "url": "https://github.com/jiaoaiya/dsh-companion-mood/issues"
+  },
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "*.js",
+    "*.html",
+    "*.yml"
+  ],
+  "engines": {
+    "node": ">=22.16.0",
+    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "settings": "node settings-ui.js"
+  },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "inject": ["@deepseek-ai/dsh-client-runtime", "@deepseek-ai/dsh-client-connection", "@deepseek-ai/dsh-client-ui-settings"]
+    }
+  }
+}

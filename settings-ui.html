@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>陪伴插件设置</title>
+  <style nonce="__NONCE__">
+    :root { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; color: #e9edf9; background: #111420; color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 85% 0%, #30375c 0, #111420 38%); }
+    main { max-width: 900px; margin: auto; padding: 48px 22px 70px; }
+    .eyebrow { color: #a7b7ff; letter-spacing: .14em; font-size: 12px; font-weight: 700; }
+    h1 { font-size: clamp(30px, 5vw, 44px); margin: 8px 0 8px; line-height: 1.2; }
+    .intro { color: #aab1c8; line-height: 1.7; margin: 0 0 30px; }
+    .card { background: #1c2030; border: 1px solid #343a51; border-radius: 18px; padding: 24px; margin: 18px 0; box-shadow: 0 16px 40px #080b1560; }
+    .card h2 { margin: 0 0 6px; font-size: 20px; }
+    .card > p { color: #aab1c8; font-size: 14px; line-height: 1.6; margin: 0 0 20px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    label { display: flex; flex-direction: column; gap: 7px; font-size: 14px; font-weight: 650; }
+    .hint { color: #aab1c8; font-weight: 400; font-size: 12px; line-height: 1.5; }
+    input, select { width: 100%; color: #eff2ff; background: #141827; border: 1px solid #49516c; border-radius: 9px; padding: 11px 12px; font: inherit; }
+    select option { color: #eff2ff; background-color: #141827; }
+    input:focus, select:focus { outline: 2px solid #8698ff; outline-offset: 2px; }
+    input[type=checkbox] { width: 19px; height: 19px; accent-color: #8a9dff; }
+    .toggle { flex-direction: row; align-items: center; font-size: 16px; }
+    .wide { grid-column: 1 / -1; }
+    .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; position: sticky; bottom: 12px; background: #1c2030f5; border: 1px solid #3b435d; border-radius: 14px; padding: 12px; box-shadow: 0 12px 30px #080b1599; }
+    button { border: 0; border-radius: 9px; padding: 11px 17px; font: inherit; font-weight: 700; cursor: pointer; }
+    button.primary { color: #101525; background: #aab8ff; }
+    button.secondary { color: #dce2fa; background: #343b55; }
+    button:disabled { opacity: .6; cursor: wait; }
+    #status { color: #bfc9e9; font-size: 14px; }
+    #status.error { color: #ff9d9d; }
+    .path { color: #8c98b8; font-size: 12px; overflow-wrap: anywhere; margin-top: 18px; }
+    .tabs { display: flex; gap: 26px; border-bottom: 1px solid #49516c; margin: 20px 0 26px; }
+    .tab { background: none; border-radius: 0; color: #aab1c8; padding: 12px 2px; border-bottom: 3px solid transparent; }
+    .tab.active { color: #c5d1ff; border-bottom-color: #8a9dff; }
+    .view[hidden], .dialog[hidden] { display: none; }
+    .discover-head { display: flex; gap: 12px; align-items: center; margin: 0 0 18px; }
+    .discover-head input { flex: 1; }
+    .discover-head #dsh-port { max-width: 155px; }
+    .discover-head button { white-space: nowrap; }
+    .discover-meta { color: #aab1c8; font-size: 13px; margin: 0 0 18px; min-height: 20px; }
+    .discover-meta.error { color: #ff9d9d; }
+    .pack-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .pack { overflow: hidden; padding: 0; margin: 0; }
+    .pack-cover { width: 100%; height: 200px; object-fit: cover; display: block; background: #30364b; cursor: pointer; }
+    .pack-cover.empty { display: grid; place-items: center; color: #aab1c8; font-size: 48px; }
+    .pack-body { padding: 16px; }
+    .pack-body h2 { font-size: 18px; margin: 0 0 6px; }
+    .pack-body p { margin: 0 0 10px; color: #aab1c8; font-size: 13px; line-height: 1.5; }
+    .pack-description { min-height: 40px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+    .tag { background: #30364b; border-radius: 20px; padding: 3px 9px; color: #d5dcf8; font-size: 12px; }
+    .pack-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+    .pack-actions a { display: inline-block; text-decoration: none; border-radius: 9px; padding: 10px 14px; font-weight: 700; background: #aab8ff; color: #101525; }
+    .install-help { color: #aab1c8; font-size: 13px; line-height: 1.6; margin: 22px 0; }
+    .dialog { position: fixed; inset: 0; z-index: 3; background: #060814d9; padding: 24px; display: grid; place-items: center; }
+    .dialog-panel { width: min(780px, 100%); max-height: 90vh; overflow-y: auto; background: #1c2030; border: 1px solid #49516c; border-radius: 18px; padding: 20px; }
+    .dialog-top { display: flex; justify-content: space-between; gap: 15px; align-items: center; }
+    .dialog-top h2 { margin: 0; }
+    .preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+    .preview-grid img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #111420; border-radius: 10px; }
+    @media (max-width: 650px) { main { padding-top: 30px; } .grid { grid-template-columns: 1fr; } .wide { grid-column: auto; } .card { padding: 19px; } }
+    @media (max-width: 650px) { .pack-grid { grid-template-columns: 1fr; } .preview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .discover-head { flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">DSH COMPANION</div>
+  <h1>陪伴插件</h1>
+  <p class="intro">调整主动聊天和表情包偏好，也可以发现适合对话的新图库。</p>
+  <nav class="tabs" aria-label="页面切换">
+    <button class="tab active" type="button" data-view="settings" aria-selected="true">设置</button>
+    <button class="tab" type="button" data-view="discover" aria-selected="false">发现表情包</button>
+  </nav>
+  <section class="view" id="settings-view">
+  <form id="settings-form">
+    <section class="card">
+      <h2>整体</h2>
+      <p>关闭后暂停情绪更新和主动联系；设置页仍可再次打开。</p>
+      <label class="toggle"><input type="checkbox" name="enabled"> 启用陪伴插件</label>
+    </section>
+    <section class="card">
+      <h2>主动聊天</h2>
+      <p>你们结束这一轮聊天后，插件等待一段沉默时间，再让 AI 读取完整对话与双方回复，判断情绪及是否主动联系。</p>
+      <div class="grid">
+        <label>检查频率（分钟）<input name="checkMinutes" type="number" min="1" max="1440" step="1" required><span class="hint">每隔多久检查一次待执行计划；最短约 1 分钟。</span></label>
+        <label>停聊后评估等待（分钟）<input name="assessmentIdleMinutes" type="number" min="1" max="60" step="1" required><span class="hint">助手回复完后，你持续没有新消息多久，才判断情绪和主动联系时间。</span></label>
+        <label>暂不联系后再次评估（分钟）<input name="reassessMinutes" type="number" min="30" max="1440" step="1" required><span class="hint">AI 决定暂不联系时，继续沉默多久后重新判断。默认 240 分钟。</span></label>
+        <label>最低沉默时间（分钟）<input name="minIdleMinutes" type="number" min="1" max="10080" step="1" required><span class="hint">你最近一次发消息后至少等待这么久。</span></label>
+        <label>主动联系冷却（分钟）<input name="cooldownMinutes" type="number" min="1" max="10080" step="1" required><span class="hint">两次主动联系之间的最短间隔。</span></label>
+        <label>每天最多联系次数<input name="maxPerDay" type="number" min="0" max="24" step="1" required><span class="hint">填 0 可停止主动联系，情绪和普通聊天仍可用。</span></label>
+        <label>静默开始（24 小时制）<input name="quietStartHour" type="number" min="0" max="23" step="1" required></label>
+        <label>静默结束（24 小时制）<input name="quietEndHour" type="number" min="0" max="23" step="1" required><span class="hint">与开始时间相同表示不设静默时段。</span></label>
+        <label>时区<input name="timeZone" type="text" maxlength="100" required><span class="hint">例如 Asia/Shanghai 或 America/Los_Angeles。</span></label>
+        <label>固定会话 ID（可选）<input name="targetSessionId" type="text" maxlength="200"><span class="hint">留空时，跟随最近与你交谈的主会话。</span></label>
+      </div>
+    </section>
+    <section class="card">
+      <h2>表情包</h2>
+      <p>需要在同一个 DSH profile 安装 dsh-meme。AI 会优先检索它已启用的图库，用近义词和模糊匹配挑图，再交给 dsh-meme 发送。</p>
+      <label>发送偏好
+        <select name="memeMode">
+          <option value="often">经常发：多数合适的闲聊回合优先尝试</option>
+          <option value="natural">自然发：只有非常贴切时才发</option>
+          <option value="off">关闭：不主动建议使用表情包</option>
+        </select>
+      </label>
+      <label class="toggle"><input type="checkbox" name="autoCollectMemes"> 聊天结束后自动收藏合适的表情包</label>
+      <p class="hint">默认关闭。开启后，AI 仅检查本轮收到的图片，判断它是否适合作为可复用表情包；收录到 dsh-meme 的“我的收藏”。普通照片、截图和重复图片不收录。识图可能产生模型费用。</p>
+    </section>
+    <div class="actions">
+      <button class="primary" type="submit">保存设置</button>
+      <button class="secondary" type="button" id="restore">恢复推荐值</button>
+      <span id="status" role="status" aria-live="polite">正在读取设置…</span>
+    </div>
+  </form>
+  <div class="path" id="path"></div>
+  </section>
+  <section class="view" id="discover-view" hidden>
+    <div class="discover-head">
+      <input id="pack-search" type="search" placeholder="搜索图库、作者或关键词…" aria-label="搜索图库">
+      <input id="dsh-port" type="number" min="1" max="65535" step="1" placeholder="DSH 端口：自动" aria-label="DSH 端口（可选）">
+      <button class="secondary" id="pack-refresh" type="button">刷新目录</button>
+    </div>
+    <p class="discover-meta" id="discover-status" role="status" aria-live="polite">打开“发现”后读取图库目录。</p>
+    <div class="pack-grid" id="pack-grid"></div>
+    <p class="install-help">图库来自 dsh-meme 的目录。连接到正在运行的 dsh-meme 后可在这里直接安装；找不到 DSH 时可填写其 Web 端口，或下载 ZIP 后到 DSH → 设置 → 表情包 → 图库中导入。安装完成后，陪伴插件会优先挑选符合聊天内容的图。</p>
+  </section>
+</main>
+<div class="dialog" id="preview-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="preview-title">
+  <div class="dialog-panel">
+    <div class="dialog-top"><h2 id="preview-title"></h2><button class="secondary" id="preview-close" type="button">关闭</button></div>
+    <div class="preview-grid" id="preview-grid"></div>
+    <p class="hint" id="preview-description"></p>
+  </div>
+</div>
+<script nonce="__NONCE__">
+  const token = new URLSearchParams(location.search).get('token');
+  const form = document.getElementById('settings-form');
+  const status = document.getElementById('status');
+  let defaults;
+  function say(message, isError = false) { status.textContent = message; status.classList.toggle('error', isError); }
+  function fill(settings) {
+    for (const [key, value] of Object.entries(settings)) {
+      const field = form.elements.namedItem(key);
+      if (!field) continue;
+      if (field.type === 'checkbox') field.checked = value;
+      else field.value = value;
+    }
+  }
+  function collect() {
+    const settings = {};
+    for (const field of form.elements) {
+      if (!field.name) continue;
+      if (field.type === 'checkbox') settings[field.name] = field.checked;
+      else if (field.type === 'number') settings[field.name] = Number(field.value);
+      else settings[field.name] = field.value;
+    }
+    return settings;
+  }
+  async function request(method, body) {
+    const response = await fetch('/api/settings', {
+      method,
+      headers: { 'X-Companion-Token': token, 'Content-Type': 'application/json' },
+      body: body && JSON.stringify(body),
+      cache: 'no-store',
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || '请求失败');
+    return result;
+  }
+  request('GET').then((result) => {
+    defaults = result.defaults;
+    fill(result.settings);
+    document.getElementById('path').textContent = '设置保存在：' + result.file;
+    say('已读取设置');
+  }).catch((error) => say(error.message, true));
+  document.getElementById('restore').addEventListener('click', () => { if (defaults) { fill(defaults); say('已填入推荐值，点击“保存设置”才会生效'); } });
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const button = form.querySelector('button[type=submit]');
+    button.disabled = true;
+    say('正在保存…');
+    try { const result = await request('PUT', collect()); fill(result.settings); say('已保存，运行中的插件会读取新设置'); }
+    catch (error) { say(error.message, true); }
+    finally { button.disabled = false; }
+  });
+
+  const grid = document.getElementById('pack-grid');
+  const discoverStatus = document.getElementById('discover-status');
+  const search = document.getElementById('pack-search');
+  const portField = document.getElementById('dsh-port');
+  const dialog = document.getElementById('preview-dialog');
+  let packs = [];
+  let installed = new Set();
+  let connected = false;
+  let activePort = 0;
+  let loaded = false;
+  try { portField.value = localStorage.getItem('companion-dsh-port') || ''; } catch {}
+  function setDiscoverStatus(message, error = false) {
+    discoverStatus.textContent = message;
+    discoverStatus.classList.toggle('error', error);
+  }
+  function portQuery() {
+    const port = Number(portField.value);
+    return Number.isInteger(port) && port >= 1 && port <= 65535 ? '?port=' + port : '';
+  }
+  function norm(value) { return String(value || '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g, ''); }
+  function oneEditAway(a, b) {
+    if (Math.abs(a.length - b.length) > 1) return false;
+    let i = 0, j = 0, edits = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) { i++; j++; continue; }
+      if (++edits > 1) return false;
+      if (a.length >= b.length) i++;
+      if (b.length >= a.length) j++;
+    }
+    return edits + (i < a.length || j < b.length ? 1 : 0) <= 1;
+  }
+  function fuzzyScore(pack, query) {
+    const q = norm(query);
+    if (!q) return 1;
+    const fields = [pack.name, pack.id, pack.maintainer, pack.description].concat(pack.keywords || []).map(norm);
+    for (let i = 0; i < fields.length; i++) if (fields[i].includes(q)) return 100 - i * 5;
+    if (q.length < 3) return 0;
+    for (const field of fields) {
+      let at = 0;
+      for (const char of field) if (char === q[at]) at++;
+      if (at === q.length) return 25;
+      for (let start = 0; start < field.length; start++)
+        for (const size of [q.length - 1, q.length, q.length + 1])
+          if (size > 0 && oneEditAway(q, field.slice(start, start + size))) return 12;
+    }
+    return 0;
+  }
+  function make(tag, className, value) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (value != null) el.textContent = value;
+    return el;
+  }
+  function showPreview(pack) {
+    document.getElementById('preview-title').textContent = pack.name;
+    document.getElementById('preview-description').textContent = pack.description || '暂无简介';
+    const previewGrid = document.getElementById('preview-grid');
+    previewGrid.replaceChildren();
+    const urls = pack.previews.length ? pack.previews : pack.preview ? [pack.preview] : [];
+    for (const url of urls) {
+      const img = make('img');
+      img.src = url;
+      img.loading = 'lazy';
+      img.alt = pack.name + ' 预览';
+      previewGrid.append(img);
+    }
+    dialog.hidden = false;
+    document.getElementById('preview-close').focus();
+  }
+  function renderPacks() {
+    const q = search.value.trim();
+    const matches = packs.map(pack => ({ pack, score: fuzzyScore(pack, q) })).filter(x => x.score).sort((a, b) => b.score - a.score);
+    grid.replaceChildren();
+    for (const { pack } of matches) {
+      const card = make('article', 'card pack');
+      const cover = pack.preview ? make('img', 'pack-cover') : make('div', 'pack-cover empty', '♡');
+      if (pack.preview) { cover.src = pack.preview; cover.alt = pack.name + ' 封面'; cover.loading = 'lazy'; }
+      cover.tabIndex = 0;
+      cover.setAttribute('role', 'button');
+      cover.setAttribute('aria-label', '预览' + pack.name);
+      cover.addEventListener('click', () => showPreview(pack));
+      cover.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(pack); } });
+      const body = make('div', 'pack-body');
+      body.append(make('h2', '', pack.name));
+      const meta = [pack.maintainer, pack.version ? 'v' + pack.version : '', pack.count != null ? pack.count + ' 张' : '', pack.downloads != null ? '↓ ' + pack.downloads : ''].filter(Boolean).join(' · ');
+      body.append(make('p', '', meta));
+      body.append(make('p', 'pack-description', pack.description || '暂无简介'));
+      const tags = make('div', 'tags');
+      for (const tag of pack.keywords.slice(0, 5)) tags.append(make('span', 'tag', tag));
+      body.append(tags);
+      const actions = make('div', 'pack-actions');
+      if (connected && (pack.archiveUrl && pack.sha256 || pack.manifestUrl)) {
+        const install = make('button', 'primary', installed.has(pack.id) ? '重新安装 / 更新' : '安装到 dsh-meme');
+        install.type = 'button';
+        install.addEventListener('click', () => installPack(pack, install));
+        actions.append(install);
+      }
+      const preview = make('button', 'secondary', '预览');
+      preview.type = 'button';
+      preview.addEventListener('click', () => showPreview(pack));
+      actions.append(preview);
+      if (pack.archiveUrl) {
+        const download = make('a', '', '下载 ZIP');
+        download.href = pack.archiveUrl;
+        download.target = '_blank';
+        download.rel = 'noopener noreferrer';
+        actions.append(download);
+      }
+      if (installed.has(pack.id)) body.append(make('p', '', '✓ 已在 dsh-meme 中安装'));
+      body.append(actions);
+      card.append(cover, body);
+      grid.append(card);
+    }
+    if (!matches.length) grid.append(make('p', 'discover-meta', q ? '没有找到匹配的图库，试试更短的关键词。' : '目录暂时没有图库。'));
+    setDiscoverStatus((q ? '匹配 ' + matches.length + ' 个 / ' : '') + '共 ' + packs.length + ' 个图库 · ' + (connected ? '已连接 dsh-meme（端口 ' + activePort + '）' : '未连接 dsh-meme，可先浏览与下载'));
+  }
+  async function loadPacks(force = false) {
+    setDiscoverStatus('正在读取图库目录…');
+    grid.replaceChildren();
+    try {
+      const suffix = portQuery();
+      const response = await fetch('/api/discover' + suffix + (force ? (suffix ? '&' : '?') + 'refresh=1' : ''), { headers: { 'X-Companion-Token': token }, cache: 'no-store' });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || '读取目录失败');
+      packs = result.packs || [];
+      installed = new Set(result.installedIds || []);
+      connected = !!result.connected;
+      activePort = result.port || 0;
+      loaded = true;
+      renderPacks();
+      if (result.stale) setDiscoverStatus(discoverStatus.textContent + ' · 当前显示上次缓存');
+    } catch (error) { setDiscoverStatus(error.message, true); }
+  }
+  async function installPack(pack, button) {
+    button.disabled = true;
+    setDiscoverStatus('正在安装“' + pack.name + '”…');
+    try {
+      const response = await fetch('/api/discover/install' + portQuery(), {
+        method: 'POST', headers: { 'X-Companion-Token': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: pack.id }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || '安装失败');
+      if (!result.jobId) throw new Error('dsh-meme 没有返回安装任务');
+      for (let n = 0; n < 450; n++) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const progress = await fetch('/api/discover/job/' + encodeURIComponent(result.jobId), { headers: { 'X-Companion-Token': token }, cache: 'no-store' });
+        const job = await progress.json();
+        if (!progress.ok) throw new Error(job.error || '读取安装进度失败');
+        setDiscoverStatus(job.message || '正在安装…');
+        if (job.state === 'done' || job.state === 'done-with-errors') { installed.add(pack.id); renderPacks(); setDiscoverStatus(job.message || '安装完成'); return; }
+        if (job.state === 'error') throw new Error(job.message || '安装失败');
+      }
+      throw new Error('安装仍在进行；请在 dsh-meme 中查看进度');
+    } catch (error) { setDiscoverStatus(error.message, true); }
+    finally { button.disabled = false; }
+  }
+  for (const tab of document.querySelectorAll('.tab')) tab.addEventListener('click', () => {
+    for (const item of document.querySelectorAll('.tab')) { item.classList.toggle('active', item === tab); item.setAttribute('aria-selected', item === tab ? 'true' : 'false'); }
+    document.getElementById('settings-view').hidden = tab.dataset.view !== 'settings';
+    document.getElementById('discover-view').hidden = tab.dataset.view !== 'discover';
+    if (tab.dataset.view === 'discover' && !loaded) loadPacks();
+  });
+  search.addEventListener('input', renderPacks);
+  document.getElementById('pack-refresh').addEventListener('click', () => loadPacks(true));
+  portField.addEventListener('change', () => { try { localStorage.setItem('companion-dsh-port', portField.value); } catch {} loaded = false; loadPacks(); });
+  document.getElementById('preview-close').addEventListener('click', () => { dialog.hidden = true; });
+  dialog.addEventListener('click', e => { if (e.target === dialog) dialog.hidden = true; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') dialog.hidden = true; });
+</script>
+</body>
+</html>

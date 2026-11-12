@@ -1,0 +1,17 @@
+- insert:
+    - id: companion-mood
+      name: dsh-companion-mood
+      config:
+        enabled: true
+        targetSessionId: ""
+        checkMinutes: 5
+        assessmentIdleMinutes: 3
+        reassessMinutes: 240
+        minIdleMinutes: 30
+        cooldownMinutes: 180
+        maxPerDay: 2
+        timeZone: Asia/Shanghai
+        memeMode: often
+        autoCollectMemes: false
+        quietStartHour: 23
+        quietEndHour: 8
