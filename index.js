@@ -30,13 +30,14 @@ function loadState(file) {
     const saved = JSON.parse(readFileSync(file, 'utf8'))
     if (!saved || typeof saved !== 'object') return defaults
     const state = { ...defaults, ...saved }
-    for (const key of ['valence', 'energy', 'closeness', 'updatedAt', 'lastHumanAt', 'lastContactAt', 'countToday', 'modelEmotionAt', 'lastPlannedHumanAt', 'assessmentDueAt', 'assessmentAttempts', 'lastAssessmentAt', 'lastAutoCollectAt']) {
+    for (const key of ['valence', 'energy', 'closeness', 'updatedAt', 'lastHumanAt', 'lastContactAt', 'countToday', 'modelEmotionAt', 'lastPlannedHumanAt', 'assessmentDueAt', 'assessmentAttempts', 'lastAssessmentAt', 'lastAssessmentErrorAt', 'lastAutoCollectAt']) {
       if (!Number.isFinite(state[key])) state[key] = defaults[key]
     }
     state.targetSessionId = String(state.targetSessionId || '')
     state.day = String(state.day || '')
     state.paused = state.paused === true
     state.modelEmotion = String(state.modelEmotion || '')
+    state.lastAssessmentError = String(state.lastAssessmentError || '').slice(0, 300)
     state.lastDecision = ['send', 'skip'].includes(state.lastDecision) ? state.lastDecision : ''
     state.lastAutoCollectResult = String(state.lastAutoCollectResult || '').slice(0, 200)
     state.collectedHashes = Array.isArray(state.collectedHashes)
@@ -118,6 +119,8 @@ export function apply(ctx, rawConfig = {}) {
             json(200, { ok: true, settings: getConfig(), defaults: normalizeConfig(), state: {
               mood: moodName(state), lastHumanAt: state.lastHumanAt, assessmentDueAt: state.assessmentDueAt,
               lastAssessmentAt: state.lastAssessmentAt, lastDecision: state.lastDecision,
+              assessmentAttempts: state.assessmentAttempts, lastAssessmentError: state.lastAssessmentError,
+              lastAssessmentErrorAt: state.lastAssessmentErrorAt,
               nextContactAt: state.plan?.dueAt || 0, paused: state.paused,
               lastAutoCollectAt: state.lastAutoCollectAt, lastAutoCollectResult: state.lastAutoCollectResult,
             } })
@@ -320,6 +323,8 @@ export function apply(ctx, rawConfig = {}) {
       state.lastDecision = decision.decision
       state.assessmentDueAt = decision.decision === 'skip' ? now + config.reassessMinutes * 60000 : 0
       state.assessmentAttempts = 0
+      state.lastAssessmentError = ''
+      state.lastAssessmentErrorAt = 0
       if (image && !decision.collectMeme) state.lastAutoCollectResult = 'AI 判断本轮图片不适合自动收藏'
       persist()
       if (image && decision.collectMeme && getConfig().autoCollectMemes && state.lastHumanAt === humanAt) {
@@ -334,12 +339,11 @@ export function apply(ctx, rawConfig = {}) {
       warn(error)
       if (state.lastHumanAt === humanAt) {
         state.assessmentAttempts++
-        if (state.assessmentAttempts >= 3) {
-          state.lastPlannedHumanAt = humanAt
-          state.assessmentDueAt = 0
-        } else {
-          state.assessmentDueAt = Date.now() + Math.max(5, config.checkMinutes) * 60000
-        }
+        state.lastAssessmentError = String(error?.message || error).slice(0, 300)
+        state.lastAssessmentErrorAt = Date.now()
+        const retryMinutes = state.assessmentAttempts >= 3
+          ? Math.max(30, config.reassessMinutes) : Math.max(5, config.checkMinutes)
+        state.assessmentDueAt = Date.now() + retryMinutes * 60000
         persist()
       }
     } finally { assessing = false }

@@ -55,6 +55,8 @@ export function initialState() {
     lastPlannedHumanAt: 0,
     assessmentDueAt: 0,
     assessmentAttempts: 0,
+    lastAssessmentError: '',
+    lastAssessmentErrorAt: 0,
     lastAssessmentAt: 0,
     lastDecision: '',
     collectedHashes: [],
@@ -83,6 +85,8 @@ export function observeHuman(state, now) {
   state.lastPlannedHumanAt = 0
   state.assessmentDueAt = 0
   state.assessmentAttempts = 0
+  state.lastAssessmentError = ''
+  state.lastAssessmentErrorAt = 0
   state.lastDecision = ''
   state.lastAssessmentAt = 0
   return state

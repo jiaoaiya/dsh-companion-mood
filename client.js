@@ -86,7 +86,16 @@ window.__ModuleLoader__.load({
       const [folderFiles, setFolderFiles] = React.useState([])
       const [folderName, setFolderName] = React.useState('')
       const [recognizeImport, setRecognizeImport] = React.useState(false)
-      React.useEffect(() => { let live = true; api('/companion-mood-api?op=settings').then(data => { if (live) { setSettings(data.settings); setDefaults(data.defaults); setState(data.state) } }).catch(e => { if (live) { setNotice(e.message); setError(true) } }); return () => { live = false } }, [])
+      React.useEffect(() => {
+        let live = true
+        api('/companion-mood-api?op=settings').then(data => {
+          if (live) { setSettings(data.settings); setDefaults(data.defaults); setState(data.state) }
+        }).catch(e => { if (live) { setNotice(e.message); setError(true) } })
+        const timer = setInterval(() => {
+          api('/companion-mood-api?op=settings').then(data => { if (live) setState(data.state) }).catch(() => {})
+        }, 30000)
+        return () => { live = false; clearInterval(timer) }
+      }, [])
       async function discover(refresh = false) {
         setNotice('正在读取图库目录…'); setError(false)
         try {
@@ -198,6 +207,7 @@ window.__ModuleLoader__.load({
           h('div', { className: 'companion-box' },
             h('h3', null, '陪伴状态'),
             h('p', { className: 'companion-note' }, state ? '当前情绪：' + state.mood + ' · ' + (state.paused ? '已暂停主动联系' : state.assessmentDueAt ? (state.lastDecision === 'skip' ? '上次决定暂不联系 · 下次评估 ' : '等待停聊后评估 · ') + new Date(state.assessmentDueAt).toLocaleString() : state.nextContactAt ? '下次主动联系不早于 ' + new Date(state.nextContactAt).toLocaleString() : state.lastDecision === 'skip' ? '上次决定暂不联系' : '暂无主动联系计划') : '正在读取…'),
+            state?.lastAssessmentError && h('p', { className: 'companion-note' }, '最近评估失败（第 ' + state.assessmentAttempts + ' 次）：' + state.lastAssessmentError + '。将自动重试。'),
             h('label', null, h('input', { type: 'checkbox', checked: settings.enabled, onChange: e => update('enabled', e.target.checked) }), ' 启用陪伴插件')),
           h('div', { className: 'companion-box' }, h('h3', null, '主动聊天'),
             h('p', { className: 'companion-note' }, '助手完成回复、你保持沉默后，AI 才读取这段完整聊天来判断情绪和联系时间。'),
